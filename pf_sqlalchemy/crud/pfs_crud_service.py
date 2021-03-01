@@ -17,3 +17,10 @@ class PfsCrudService:
             database.session.commit()
         except Exception as e:
             self._handle_exception(e)
+
+    def delete(self, model: Base):
+        try:
+            database.session.delete(model)
+            database.session.commit()
+        except Exception as e:
+            self._handle_exception(e)

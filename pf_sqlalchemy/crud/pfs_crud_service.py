@@ -1,5 +1,6 @@
 from common.pff_common_exception import PFFCommonException
 from pf_sqlalchemy.db.orm import database, Base
+from sqlalchemy import engine, text
 from sqlalchemy.exc import IntegrityError
 from pf_sqlalchemy.crud.pfs_crud_exception import parse_integrity_error
 
@@ -24,3 +25,12 @@ class PfsCrudService:
             database.session.commit()
         except Exception as e:
             self._handle_exception(e)
+
+    def raw_query(self, sql):
+        try:
+            connection = database.engine.connect()
+            return connection.execute(text(sql))
+        except Exception as e:
+            self._handle_exception(e)
+
+

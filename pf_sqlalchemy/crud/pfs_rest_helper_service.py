@@ -32,9 +32,11 @@ class PfsRestHelperService(PfRequestResponse):
         entity = self._get_model(entity)
         return entity.query.filter_by(id=id).first()
 
-    def rest_create(self, request_dto: PfBaseSchema, response_dto: PfBaseSchema):
+    def rest_create(self, request_dto: PfBaseSchema, response_dto: PfBaseSchema = None, message: str = "Successfully Created"):
         validated_model = self.json_request_process(request_dto)
         pfs_crud.save(validated_model)
+        if not response_dto:
+            return self.success(message)
         return self.json_data_response(validated_model, response_dto)
 
     def rest_hard_delete(self, id: int):

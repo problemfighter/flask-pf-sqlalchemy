@@ -8,9 +8,9 @@ pfs_crud = PfsCrudService()
 
 
 class PfsRestHelperService(PfRequestResponse):
-    model: Base = None
+    model = None
 
-    def __init__(self, model: Base = None):
+    def __init__(self, model=None):
         self.model = model
 
     def rest_check_id(self, dto_schema: PfBaseSchema, message="Invalid Id"):
@@ -28,9 +28,9 @@ class PfsRestHelperService(PfRequestResponse):
             raise PFFCommonException(message)
         return entity
 
-    def rest_get_value_by_id(self, id: int, entity: Base = None):
+    def rest_get_value_by_id(self, model_id: int, entity: Base = None):
         entity = self._get_model(entity)
-        return entity.query.filter_by(id=id).first()
+        return entity.query.filter_by(id=model_id).first()
 
     def rest_create(self, request_dto: PfBaseSchema, response_dto: PfBaseSchema = None, message: str = "Successfully Created"):
         validated_model = self.json_request_process(request_dto)
@@ -39,14 +39,17 @@ class PfsRestHelperService(PfRequestResponse):
             return self.success(message)
         return self.json_data_response(validated_model, response_dto)
 
-    def rest_hard_delete(self, id: int):
+    def rest_hard_delete(self, model_id: int):
         pass
 
-    def rest_delete(self, id: int):
+    def rest_delete(self, model_id: int):
         pass
 
-    def rest_details(self, id: int):
-        pass
+    def rest_details(self, model_id: int, response_dto: PfBaseSchema, message: str = "Invalid details request."):
+        model = self.rest_get_value_by_id(model_id)
+        if not model:
+            raise PFFCommonException(message)
+        return self.json_data_response(model, response_dto)
 
     def rest_list(self, dto_schema: PfBaseSchema, pagination: bool = True, sort: bool = True):
         pass

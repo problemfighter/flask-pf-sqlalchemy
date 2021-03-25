@@ -3,7 +3,7 @@ from pf_sqlalchemy.crud.pfs_crud_service import PfsCrudService
 from pf_sqlalchemy.db.orm import Base
 from pfms.pfapi.base.pfms_base_schema import PfBaseSchema
 from pfms.pfapi.rr.pfms_request_respons import PfRequestResponse
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 pfs_crud = PfsCrudService()
 
@@ -76,5 +76,30 @@ class PfsRestHelperService(PfRequestResponse):
         model = self.rest_by_id_or_exception(model_id, message)
         return self.json_data_response(model, response_dto)
 
-    def rest_list(self, dto_schema: PfBaseSchema, pagination: bool = True, sort: bool = True):
-        pass
+    def _rest_search(self, search_fields: list, query):
+        like = []
+        search = self.request().get_search_string()
+        if search:
+            for field in search_fields:
+                like.append(getattr(self.model, field).ilike("%{}%".format(search)))
+            if like:
+                return query.filter(or_(*like))
+        return query
+
+    def rest_list(self, dto_schema: PfBaseSchema, search: list = None, default_sort: str = 'id', pagination: bool = True, sort: bool = True, model=None):
+        query = model
+        if not model:
+            query = self.model.query
+
+        if sort:
+            query = self.request().add_order_by(query, default_sort)
+
+        if search and self.model:
+            query = self._rest_search(search, query)
+
+        if pagination:
+            result = self.request().add_pagination(query)
+        else:
+            result = query.all()
+
+        return self.json_pagination_response(result, dto_schema)

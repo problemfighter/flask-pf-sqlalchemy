@@ -1,4 +1,5 @@
 from common.pff_common_exception import PFFCommonException
+from flask import request
 from pf_sqlalchemy.crud.pfs_crud_service import PfsCrudService
 from pf_sqlalchemy.db.orm import Base
 from pfms.pfapi.base.pfms_base_schema import PfBaseSchema
@@ -11,7 +12,7 @@ pfs_crud = PfsCrudService()
 class PfsRestHelperService(PfRequestResponse):
     model = None
 
-    def __init__(self, model=None):
+    def __init__(self, model):
         self.model = model
 
     def rest_get_requested_model_id(self, message="Invalid Id"):
@@ -87,6 +88,34 @@ class PfsRestHelperService(PfRequestResponse):
         model = self.rest_by_id_or_exception(model_id, message)
         return self.json_data_response(model, response_dto)
 
+    def rest_order_by(self, model, default_field="id", default_order="desc"):
+        sort_field = self.request().get_requested_value("sort_field")
+        if not sort_field:
+            sort_field = default_field
+
+        sort_order = self.request().get_requested_value("sort_order")
+        if not sort_order:
+            sort_order = default_order
+        elif sort_order and (sort_order != "asc" and sort_order != "desc"):
+            sort_order = default_order
+
+        if sort_order == "asc":
+            return model.order_by(getattr(self.model, sort_field).asc())
+        return model.order_by(getattr(self.model, sort_field).desc())
+
+    def pagination_params(self):
+        page: int = self.request().get_query_param_value('page', type=int)
+        if not page:
+            page = 0
+        per_page: int = self.request().get_query_param_value('per-page', type=int)
+        if not per_page:
+            per_page = 25
+        return {"page": page, "per_page": per_page}
+
+    def rest_pagination(self, model):
+        pagination = self.pagination_params()
+        return model.paginate(page=pagination['page'], per_page=pagination['per_page'], error_out=False)
+
     def _rest_search(self, search_fields: list, query):
         like = []
         search = self.request().get_search_string()
@@ -103,13 +132,13 @@ class PfsRestHelperService(PfRequestResponse):
             query = self.model.query
 
         if sort:
-            query = self.request().add_order_by(query, default_sort)
+            query = self.rest_order_by(query, default_sort)
 
         if search and self.model:
             query = self._rest_search(search, query)
 
         if pagination:
-            result = self.request().add_pagination(query)
+            result = self.rest_pagination(query)
         else:
             result = query.all()
 

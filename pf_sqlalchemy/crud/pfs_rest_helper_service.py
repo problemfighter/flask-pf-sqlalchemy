@@ -35,18 +35,29 @@ class PfsRestHelperService(PfRequestResponse):
         entity = self._get_model(entity)
         return entity.query.filter(and_(entity.id == model_id, entity.is_deleted == is_deleted)).first()
 
-    def rest_create(self, request_dto: PfBaseSchema, response_dto: PfBaseSchema = None, message: str = "Successfully Created"):
+    def rest_validate_and_save(self, request_dto: PfBaseSchema):
         validated_model = self.json_request_process(request_dto)
         pfs_crud.save(validated_model)
+        return validated_model
+
+    def rest_validate_and_update_by_id(self, model_id, request_dto: PfBaseSchema):
+        model = self.rest_get_value_by_id(model_id)
+        validated_model = self.json_request_process(request_dto, model)
+        pfs_crud.save(validated_model)
+        return validated_model
+
+    def rest_validate_and_update(self, request_dto: PfBaseSchema):
+        model_id = self.rest_get_requested_model_id()
+        return self.rest_validate_and_update_by_id(model_id, request_dto)
+
+    def rest_create(self, request_dto: PfBaseSchema, response_dto: PfBaseSchema = None, message: str = "Successfully Created"):
+        validated_model = self.rest_validate_and_save(request_dto)
         if not response_dto:
             return self.success(message)
         return self.json_data_response(validated_model, response_dto)
 
     def rest_update(self, request_dto: PfBaseSchema, response_dto: PfBaseSchema = None, message: str = "Successfully Updated"):
-        model_id = self.rest_get_requested_model_id()
-        model = self.rest_get_value_by_id(model_id)
-        validated_model = self.json_request_process(request_dto, model)
-        pfs_crud.save(validated_model)
+        validated_model = self.rest_validate_and_update(request_dto)
         if not response_dto:
             return self.success(message)
         return self.json_data_response(validated_model, response_dto)

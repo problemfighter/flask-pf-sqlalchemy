@@ -89,11 +89,11 @@ class PfsRestHelperService(PfRequestResponse):
         return self.json_data_response(model, response_dto)
 
     def rest_order_by(self, model, default_field="id", default_order="desc"):
-        sort_field = self.request().get_requested_value("sort_field")
+        sort_field = self.request().get_requested_value("sort-field")
         if not sort_field:
             sort_field = default_field
 
-        sort_order = self.request().get_requested_value("sort_order")
+        sort_order = self.request().get_requested_value("sort-order")
         if not sort_order:
             sort_order = default_order
         elif sort_order and (sort_order != "asc" and sort_order != "desc"):

@@ -126,10 +126,11 @@ class PfsRestHelperService(PfRequestResponse):
                 return query.filter(or_(*like))
         return query
 
-    def rest_list(self, dto_schema: PfBaseSchema, search: list = None, default_sort: str = 'id', pagination: bool = True, sort: bool = True, model=None):
+    def rest_list(self, dto_schema: PfBaseSchema, search: list = None, default_sort: str = 'id', pagination: bool = True, sort: bool = True, model=None, is_deleted=False):
         query = model
         if not model:
             query = self.model.query
+        query = query.filter(getattr(self.model, "is_deleted") == is_deleted)
 
         if sort:
             query = self.rest_order_by(query, default_sort)

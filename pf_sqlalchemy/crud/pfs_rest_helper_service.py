@@ -140,7 +140,8 @@ class PfsRestHelperService(PfRequestResponse):
 
         if pagination:
             result = self.rest_pagination(query)
+            return self.json_pagination_response(result, dto_schema)
         else:
             result = query.all()
+            return self.json_list_response(result, dto_schema)
 
-        return self.json_pagination_response(result, dto_schema)

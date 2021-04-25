@@ -32,9 +32,12 @@ class PfsRestHelperService(PfRequestResponse):
             raise PFFCommonException(message)
         return entity
 
-    def rest_get_value_by_id(self, model_id: int, is_deleted: bool = False, entity: Base = None):
+    def rest_get_value_by_id(self, model_id: int, is_deleted: bool = False, entity: Base = None, query_condition=None):
         entity = self._get_model(entity)
-        return entity.query.filter(and_(entity.id == model_id, entity.is_deleted == is_deleted)).first()
+        query = query_condition
+        if not query_condition:
+            query = entity.query
+        return query.filter(and_(entity.id == model_id, entity.is_deleted == is_deleted)).first()
 
     def rest_validate_and_save(self, request_dto: PfBaseSchema):
         validated_model = self.json_request_process(request_dto)
@@ -63,8 +66,8 @@ class PfsRestHelperService(PfRequestResponse):
             return self.success(message)
         return self.json_data_response(validated_model, response_dto)
 
-    def rest_by_id_or_exception(self, model_id: int, message: str = "Requested data not exist!", is_deleted: bool = False):
-        model = self.rest_get_value_by_id(model_id, is_deleted)
+    def rest_by_id_or_exception(self, model_id: int, message: str = "Requested data not exist!", is_deleted: bool = False, query_condition=None):
+        model = self.rest_get_value_by_id(model_id, is_deleted, query_condition=query_condition)
         if not model:
             raise PFFCommonException(message)
         return model
@@ -84,8 +87,8 @@ class PfsRestHelperService(PfRequestResponse):
         pfs_crud.save(model)
         return self.success(success)
 
-    def rest_details(self, model_id: int, response_dto: PfBaseSchema, message: str = "Requested data not exist!"):
-        model = self.rest_by_id_or_exception(model_id, message)
+    def rest_details(self, model_id: int, response_dto: PfBaseSchema, message: str = "Requested data not exist!", query_condition=None):
+        model = self.rest_by_id_or_exception(model_id, message, query_condition=query_condition)
         return self.json_data_response(model, response_dto)
 
     def rest_order_by(self, model, default_field="id", default_order="desc"):

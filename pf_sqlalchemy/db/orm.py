@@ -6,11 +6,11 @@ database = SQLAlchemy()
 
 class Base(database.Model):
     __abstract__ = True
-    id = database.Column(database.BigInteger, primary_key=True)
-    created = database.Column(database.DateTime, default=database.func.now())
-    updated = database.Column(database.DateTime, default=database.func.now(), onupdate=database.func.now())
-    uuid = database.Column(database.String(50), default=get_uuid())
-    is_deleted = database.Column(database.Boolean, default=False)
+    id = database.Column("id", database.BigInteger, primary_key=True)
+    created = database.Column("created", database.DateTime, default=database.func.now())
+    updated = database.Column("updated", database.DateTime, default=database.func.now(), onupdate=database.func.now())
+    uuid = database.Column("uuid", database.String(50), default=get_uuid())
+    isDeleted = database.Column("is_deleted", database.Boolean, default=False)
 
 
 # Dummy Model

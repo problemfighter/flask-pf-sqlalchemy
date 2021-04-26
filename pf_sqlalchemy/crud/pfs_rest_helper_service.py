@@ -37,7 +37,7 @@ class PfsRestHelperService(PfRequestResponse):
         query = query_condition
         if not query_condition:
             query = entity.query
-        return query.filter(and_(entity.id == model_id, entity.is_deleted == is_deleted)).first()
+        return query.filter(and_(entity.id == model_id, entity.isDeleted == is_deleted)).first()
 
     def rest_validate_and_save(self, request_dto: PfBaseSchema):
         validated_model = self.json_request_process(request_dto)
@@ -77,13 +77,13 @@ class PfsRestHelperService(PfRequestResponse):
 
     def rest_delete(self, model_id: int, success: str = "Successfully Deleted", error: str = "Requested data not exist!"):
         model = self.rest_by_id_or_exception(model_id, error)
-        model.is_deleted = True
+        model.isDeleted = True
         pfs_crud.save(model)
         return self.success(success)
 
     def rest_restore(self, model_id: int, success: str = "Successfully Restored", error: str = "Requested data not exist!"):
         model = self.rest_by_id_or_exception(model_id, error, True)
-        model.is_deleted = False
+        model.isDeleted = False
         pfs_crud.save(model)
         return self.success(success)
 
@@ -133,7 +133,7 @@ class PfsRestHelperService(PfRequestResponse):
         query = model
         if not model:
             query = self.model.query
-        query = query.filter(getattr(self.model, "is_deleted") == is_deleted)
+        query = query.filter(getattr(self.model, "isDeleted") == is_deleted)
 
         if sort:
             query = self.rest_order_by(query, default_sort, default_order)

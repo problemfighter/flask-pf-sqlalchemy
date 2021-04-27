@@ -119,9 +119,11 @@ class PfsRestHelperService(PfRequestResponse):
         pagination = self.pagination_params()
         return model.paginate(page=pagination['page'], per_page=pagination['per_page'], error_out=False)
 
-    def _rest_search(self, search_fields: list, query):
+    def _rest_search(self, search_fields: list, query, search_text: str = None):
         like = []
         search = self.request().get_search_string()
+        if search_text:
+            search = search_text
         if search:
             for field in search_fields:
                 like.append(getattr(self.model, field).ilike("%{}%".format(search)))
@@ -129,7 +131,7 @@ class PfsRestHelperService(PfRequestResponse):
                 return query.filter(or_(*like))
         return query
 
-    def rest_list(self, dto_schema: PfBaseSchema, search: list = None, default_sort: str = 'id', pagination: bool = True, sort: bool = True, model=None, is_deleted=False, default_order: str = "desc"):
+    def rest_list(self, dto_schema: PfBaseSchema, search: list = None, default_sort: str = 'id', pagination: bool = True, sort: bool = True, model=None, is_deleted=False, default_order: str = "desc", search_text: str = None):
         query = model
         if not model:
             query = self.model.query
@@ -139,7 +141,7 @@ class PfsRestHelperService(PfRequestResponse):
             query = self.rest_order_by(query, default_sort, default_order)
 
         if search and self.model:
-            query = self._rest_search(search, query)
+            query = self._rest_search(search, query, search_text=search_text)
 
         if pagination:
             result = self.rest_pagination(query)

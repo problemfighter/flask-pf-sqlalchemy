@@ -11,6 +11,7 @@ class Base(database.Model):
     updated = database.Column("updated", database.DateTime, default=database.func.now(), onupdate=database.func.now())
     uuid = database.Column("uuid", database.String(50), default=get_uuid())
     isDeleted = database.Column("is_deleted", database.Boolean, default=False)
+    isActive = database.Column("is_active", database.Boolean, default=True)
 
 
 # Dummy Model

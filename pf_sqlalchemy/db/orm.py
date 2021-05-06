@@ -4,9 +4,13 @@ from util.common_util import get_uuid
 database = SQLAlchemy()
 
 
-class Base(database.Model):
+class PrimeBase(database.Model):
     __abstract__ = True
     id = database.Column("id", database.BigInteger, primary_key=True)
+
+
+class Base(PrimeBase):
+    __abstract__ = True
     created = database.Column("created", database.DateTime, default=database.func.now())
     updated = database.Column("updated", database.DateTime, default=database.func.now(), onupdate=database.func.now())
     uuid = database.Column("uuid", database.String(50), default=get_uuid())

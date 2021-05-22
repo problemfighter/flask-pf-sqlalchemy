@@ -106,17 +106,17 @@ class PfsRestHelperService(PfRequestResponse):
             return model.order_by(getattr(self.model, sort_field).asc())
         return model.order_by(getattr(self.model, sort_field).desc())
 
-    def pagination_params(self):
+    def pagination_params(self, item_per_page=25):
         page: int = self.request().get_query_param_value('page', type=int)
         if not page:
             page = 0
         per_page: int = self.request().get_query_param_value('per-page', type=int)
         if not per_page:
-            per_page = 25
+            per_page = item_per_page
         return {"page": page, "per_page": per_page}
 
-    def rest_pagination(self, model):
-        pagination = self.pagination_params()
+    def rest_pagination(self, model, item_per_page=25):
+        pagination = self.pagination_params(item_per_page)
         return model.paginate(page=pagination['page'], per_page=pagination['per_page'], error_out=False)
 
     def _rest_search(self, search_fields: list, query, search_text: str = None):
@@ -131,7 +131,7 @@ class PfsRestHelperService(PfRequestResponse):
                 return query.filter(or_(*like))
         return query
 
-    def rest_list(self, dto_schema: PfBaseSchema, search: list = None, default_sort: str = 'id', pagination: bool = True, sort: bool = True, model=None, is_deleted=False, default_order: str = "desc", search_text: str = None):
+    def rest_list(self, dto_schema: PfBaseSchema, search: list = None, default_sort: str = 'id', pagination: bool = True, sort: bool = True, model=None, is_deleted=False, default_order: str = "desc", search_text: str = None, per_page=25):
         query = model
         if not model:
             query = self.model.query
@@ -144,7 +144,7 @@ class PfsRestHelperService(PfRequestResponse):
             query = self._rest_search(search, query, search_text=search_text)
 
         if pagination:
-            result = self.rest_pagination(query)
+            result = self.rest_pagination(query, item_per_page=per_page)
             return self.json_pagination_response(result, dto_schema)
         else:
             result = query.all()

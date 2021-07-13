@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='Flask-PF-SqlAlchemy',
+    name='flask-pf-sqlalchemy',
     version='1.0',
     url='https://github.com/problemfighter/flask-pf-sqlalchemy',
     license='Apache 2.0',

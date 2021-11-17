@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from util.common_util import get_uuid
+from fpf_common.util.common_util import get_uuid
 
 database = SQLAlchemy()
 

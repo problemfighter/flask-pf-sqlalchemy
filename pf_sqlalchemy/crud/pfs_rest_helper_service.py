@@ -1,5 +1,4 @@
-from common.pff_common_exception import PFFCommonException
-from flask import request
+from fpf_common.common.pff_common_exception import PFFCommonException
 from pf_sqlalchemy.crud.pfs_crud_service import PfsCrudService
 from pf_sqlalchemy.db.orm import Base
 from pfms.pfapi.base.pfms_base_schema import PfBaseSchema

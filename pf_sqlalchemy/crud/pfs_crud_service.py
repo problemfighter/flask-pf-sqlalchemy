@@ -1,4 +1,4 @@
-from common.pff_common_exception import PFFCommonException
+from fpf_common.common.pff_common_exception import PFFCommonException
 from pf_sqlalchemy.db.orm import database, Base
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError

@@ -59,6 +59,9 @@ class PfsRestHelperService(PfRequestResponse):
             return self.success(message)
         return self.json_data_response(validated_model, response_dto)
 
+    def rest_validate_only(self, request_dto: PfBaseSchema):
+        self.json_request_process(request_dto, is_validate_only=True)
+
     def rest_update(self, request_dto: PfBaseSchema, response_dto: PfBaseSchema = None, message: str = "Successfully Updated"):
         validated_model = self.rest_validate_and_update(request_dto)
         if not response_dto:
